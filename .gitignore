@@ -26,6 +26,7 @@ venv/
 
 # Specific data folders
 data/oasis-data/
+logs/
 
 # apptainer container
 *.img
