@@ -56,10 +56,10 @@ apptainer exec --nv --cleanenv \
 # 5) COPY BACK THE RESULTS
 echo "Copying preprocessed dMRI from ${TMPDIR}/preproc/${P_ID}/${S_ID} to ${BASE_DIR}/preproc/${P_ID}/${S_ID} "
 mkdir -p "${BASE_DIR}/preproc/${P_ID}/${S_ID}"
-cp -r "${TMPDIR}/preproc/${P_ID}/${S_ID}" \
+cp -r "${TMPDIR}/preproc/${P_ID}/${S_ID}/." \
       "${BASE_DIR}/preproc/${P_ID}/${S_ID}"
 
-echo "COMPLETED CLEANING FOR $P_ID $S_ID
+echo "COMPLETED CLEANING FOR $P_ID $S_ID"
 
 # 6) CLEAN UP (optional)
 # rm -rf "${TMPDIR}"

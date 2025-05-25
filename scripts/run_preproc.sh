@@ -70,14 +70,20 @@ final_dwi="${out_dir}/${sub_id}_${ses_id}_dwi_allruns.nii.gz"
 final_bvec="${out_dir}/${sub_id}_${ses_id}_dwi_allruns.bvec"
 final_bval="${out_dir}/${sub_id}_${ses_id}_dwi_allruns.bval"
 
-echo "Concatenating all DWI runs..."
-mrcat "${dwi_concat_list[@]}" -axis 3 "$final_dwi"
+num_runs=${#dwi_concat_list[@]}
 
-# Save final concatenated bvec
-echo "$bvec_concat" | paste -sd' ' - > "$final_bvec"
-
-# Save final concatenated bval
-echo "$bval_concat" | paste -sd' ' - > "$final_bval"
+if [[ $num_runs -eq 1 ]]; then
+    echo "Only one run -> no concatenation needed."
+    cp   "${dwi_concat_list[0]}" "$final_dwi"
+    cp   "${bvec_out}"          "$final_bvec"   # variables still in scope
+    cp   "${bval_out}"          "$final_bval"
+else
+    echo "Concatenating $num_runs runs with mrcat ..."
+    mrcat "${dwi_concat_list[@]}" -axis 3 "$final_dwi"
+    # merge b-vec / b-val rows
+    echo "$bvec_concat" | paste -sd' ' - > "$final_bvec"
+    echo "$bval_concat" | paste -sd' ' - > "$final_bval"
+fi
 
 echo "Done: concatenated DWI written to $final_dwi"
 
