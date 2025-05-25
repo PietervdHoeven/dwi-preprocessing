@@ -198,7 +198,6 @@ echo "passed bias correct"
 
 # 7.5 Registration T1w -> standard template (Rigid)
 [[ -f "${rig_warp_prefix}warped.nii.gz" ]] || antsRegistration \
-    --verbose \
     --dimensionality 3 --float 0 \
     --output [${rig_warp_prefix},${rig_warp_prefix}warped.nii.gz] \
     --interpolation BSpline \
@@ -211,7 +210,6 @@ echo "passed bias correct"
 
 # 7.6 Registration b0 -> T1w (Rigid + Affine + Warp)
 [[ -f "${syn_warp_prefix}warped.nii.gz" ]] || antsRegistration \
-    --verbose \
     --dimensionality 3 --float 0 \
     --output [${syn_warp_prefix},${syn_warp_prefix}warped.nii.gz] \
     --interpolation BSpline \
@@ -250,7 +248,6 @@ if [[ ! -f "${split_dir}/${fp}dwi_0_sdc.nii.gz" ]]; then
         in_vol="${split_dir}/${fp}dwi_${v}.nii.gz"
         out_vol="${split_dir}/${fp}dwi_sdc_${v}.nii.gz"
         antsApplyTransforms \
-            --verbose \
             -d 3 \
             -i "$in_vol" \
             -r "$t1_clean_nii" \
@@ -282,7 +279,7 @@ if [[ ! -f "$dwi_preproc_nii" ]]; then
 fi
 
 # 8.5 rotate bvecs with syn registration affine (care! syn_aff is in LPS and bvec in RAS. See python script for logic)
-python rotate_bvecs.py "${syn_warp_prefix}0GenericAffine.mat" "${emc_bvec}" "${bval}" "${wrk_dir}/${fp}dwi_preproc.bvec"
+/usr/bin/python scripts/rotate_bvecs.py "${syn_warp_prefix}0GenericAffine.mat" "${emc_bvec}" "${bval}" "${wrk_dir}/${fp}dwi_preproc.bvec"
 cp "$bval" "$preproc_bval"
 
 # 8.6 move anat data to out_dir

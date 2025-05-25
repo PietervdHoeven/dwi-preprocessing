@@ -4,7 +4,7 @@
 #SBATCH --gres=gpu:1
 #SBATCH --cpus-per-task=18
 #SBATCH --mem=120G
-#SBATCH --time=00:10:00
+#SBATCH --time=02:30:00
 #SBATCH --output=logs/slurm_%A_%a.out
 #SBATCH --error=logs/slurm_%A_%a.err
 
@@ -23,6 +23,9 @@ LINE=$( sed -n "${SLURM_ARRAY_TASK_ID}p" "$SES_LIST" )
 echo "$LINE"
 P_ID=${LINE%%/*}
 S_ID=${LINE##*/}
+# sub-OAS30008/ses-d3363
+# P_ID="sub-OAS30008"
+# S_ID="ses-d3363"
 
 echo "Patient id: $P_ID"
 echo "Session id: $S_ID"
@@ -34,8 +37,8 @@ mkdir -p "${TMPDIR}/container"
 
 # copy only that subject/session data
 echo "Copying MRI data from ${BASE_DIR}/oasis-data/${P_ID}/${S_ID} to scratch ${TMPDIR}/oasis-data/${P_ID}/${S_ID}"
-cp -r "${BASE_DIR}/oasis-data/${P_ID}/${S_ID}" \
-      "${TMPDIR}/oasis-data/${P_ID}/${S_ID}"
+cp -r "${BASE_DIR}/oasis-data/${P_ID}/${S_ID}/." \
+      "${TMPDIR}/oasis-data/${P_ID}/${S_ID}/"
 
 # copy container image into scratch for faster startup
 echo "Copying container from ${ORIG_CONTAINER}" to "${TMPDIR}/container/neurotools.img"
@@ -55,6 +58,8 @@ echo "Copying preprocessed dMRI from ${TMPDIR}/preproc/${P_ID}/${S_ID} to ${BASE
 mkdir -p "${BASE_DIR}/preproc/${P_ID}/${S_ID}"
 cp -r "${TMPDIR}/preproc/${P_ID}/${S_ID}" \
       "${BASE_DIR}/preproc/${P_ID}/${S_ID}"
+
+echo "COMPLETED CLEANING FOR $P_ID $S_ID
 
 # 6) CLEAN UP (optional)
 # rm -rf "${TMPDIR}"

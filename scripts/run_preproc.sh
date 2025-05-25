@@ -6,6 +6,7 @@
 
 set -euo pipefail
 
+
 base_dir=$1
 sub_id=$2
 ses_id=$3
@@ -44,13 +45,20 @@ for dwi_file in "${dwi_files[@]}"; do
     fi
     echo "Processing run: $run_id"
 
-    ./preproc.sh "$base_dir" "$sub_id" "$ses_id" "$run_id" "$selected_t1"
+    bash /scripts/preproc.sh "$base_dir" "$sub_id" "$ses_id" "$run_id" "$selected_t1"
     echo "$base_dir" "$sub_id" "$ses_id" "$run_id" "$selected_t1"
 
     # Store preprocessed output paths
-    dwi_out="${wrk_dir}/${sub_id}_${ses_id}_${run_id}_dwi_preproc.nii.gz"
-    bvec_out="${wrk_dir}/${sub_id}_${ses_id}_${run_id}_dwi_preproc.bvec"
-    bval_out="${wrk_dir}/${sub_id}_${ses_id}_${run_id}_dwi_preproc.bval"
+    if [[ "$run_id" == "norun" ]]; then 
+        dwi_out="${wrk_dir}/${sub_id}_${ses_id}_dwi_preproc.nii.gz"
+        bvec_out="${wrk_dir}/${sub_id}_${ses_id}_dwi_preproc.bvec"
+        bval_out="${wrk_dir}/${sub_id}_${ses_id}_dwi_preproc.bval"
+    else
+        dwi_out="${wrk_dir}/${sub_id}_${ses_id}_${run_id}_dwi_preproc.nii.gz"
+        bvec_out="${wrk_dir}/${sub_id}_${ses_id}_${run_id}_dwi_preproc.bvec"
+        bval_out="${wrk_dir}/${sub_id}_${ses_id}_${run_id}_dwi_preproc.bval"
+    fi
+
 
     dwi_concat_list+=("$dwi_out")
     bvec_concat+=$(cat "$bvec_out")$'\n'
@@ -73,7 +81,8 @@ echo "$bval_concat" | paste -sd' ' - > "$final_bval"
 
 echo "Done: concatenated DWI written to $final_dwi"
 
-t1_out="${wrk_dir}/${sub_id}_${ses_id}_${run_id}_T1w_preproc.nii.gz"
+t1_out="${wrk_dir}/${sub_id}_${ses_id}_T1w_preproc.nii.gz"
 final_t1="${out_dir}/${sub_id}_${ses_id}_T1w_preproc.nii.gz" 
 
+echo "Copying clean T1w to out dir"
 cp $t1_out $final_t1
