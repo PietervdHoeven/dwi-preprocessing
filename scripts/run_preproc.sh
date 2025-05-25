@@ -26,6 +26,7 @@ selected_t1=$(basename "${t1w_files[0]}")
 echo "Using T1w: ${selected_t1}"
 
 # Process all DWI runs
+echo "Current dwi dir: $dwi_dir"
 mapfile -t dwi_files < <(find "$dwi_dir" -type f -name "*_dwi.nii.gz")
 dwi_concat_list=()
 bvec_concat=""
