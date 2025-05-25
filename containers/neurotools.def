@@ -1,0 +1,71 @@
+Bootstrap: docker
+From: ubuntu:22.04
+
+%environment
+    export DEBIAN_FRONTEND=noninteractive
+    export CUDA_VISIBLE_DEVICES=all
+    export FSLDIR="/root/fsl"
+    export FSLOUTPUTTYPE="NIFTI_GZ"
+    export PATH="/root/mrtrix3/bin:/usr/local/bin:${FSLDIR}/bin:/root/ants/install/bin:${PATH}"
+
+
+%post
+    apt update && apt install -y \
+        cmake \
+        g++ \
+        python3 \
+        python3-pip \
+        python3-numpy \
+        git \
+        curl \
+        ca-certificates \
+        libeigen3-dev \
+        zlib1g-dev \
+        libqt5opengl5-dev \
+        libgl1-mesa-dev \
+        libfftw3-dev \
+        libtiff5-dev \
+        bc
+    
+    # Fix for python path
+    ln -s /usr/bin/python3 /usr/bin/python || true
+
+    echo "Cloning and building MRtrix3..."
+    cd /root
+    git clone https://github.com/MRtrix3/mrtrix3.git
+    cd mrtrix3
+    ./configure -nogui
+    ./build
+    ./set_path
+
+    echo "Installing ANTs..."
+    cd /root
+    mkdir ants
+    cd /root/ants
+    git clone https://github.com/ANTsX/ANTs.git
+    mkdir build install
+    cd /root/ants/build
+    cmake \
+        -DCMAKE_INSTALL_PREFIX=/root/ants/install \
+        -DBUILD_TESTING=OFF \
+        -DRUN_LONG_TESTS=OFF \
+        -DRUN_SHORT_TESTS=OFF \
+        ../ANTs 2>&1 | tee cmake.log
+    make -j 4 2>&1 | tee build.log
+    cd /root/ants/build/ANTS-build
+    make install 2>&1 | tee install.log
+    
+    echo "Insatlling hd-bet and cuda dependencies..."
+    python -m pip install --upgrade pip
+
+    python -m pip install \
+        torch==2.3.0 torchvision torchaudio --index-url https://download.pytorch.org/whl/cu121
+
+    python -m pip install hd-bet dipy # works with above versions
+
+    curl -Ls https://fsl.fmrib.ox.ac.uk/fsldownloads/fslconda/releases/getfsl.sh | sh -s
+
+
+
+%runscript
+    exec /bin/bash

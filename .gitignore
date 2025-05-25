@@ -1,0 +1,31 @@
+# Big raw / processed MRI data
+*.nii
+*.nii.gz
+*.mif
+*.tck
+*.bvals
+*.bvecs
+*.h5
+*.csv  # optional: ignore derived data tables
+
+# Outputs / checkpoints
+outputs/
+scratch/
+*.log
+*.tmp
+
+# VS Code, PyCharm, etc.
+.vscode/
+.idea/
+
+# Python / Conda
+__pycache__/
+*.pyc
+.env
+venv/
+
+# Specific data folders
+data/oasis-data/
+
+# apptainer container
+*.img
