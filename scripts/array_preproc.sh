@@ -4,7 +4,7 @@
 #SBATCH --gres=gpu:1
 #SBATCH --cpus-per-task=18
 #SBATCH --mem=120G
-#SBATCH --time=02:30:00
+#SBATCH --time=05:00:00
 #SBATCH --output=logs/slurm_%A_%a.out
 #SBATCH --error=logs/slurm_%A_%a.err
 
@@ -24,8 +24,8 @@ echo "$LINE"
 P_ID=${LINE%%/*}
 S_ID=${LINE##*/}
 # sub-OAS30008/ses-d3363
-# P_ID="sub-OAS30008"
-# S_ID="ses-d3363"
+# P_ID="sub-OAS30001"
+# S_ID="ses-d2430"
 
 echo "Patient id: $P_ID"
 echo "Session id: $S_ID"
