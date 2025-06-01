@@ -61,28 +61,22 @@ for dwi_file in "${dwi_files[@]}"; do
 
 
     dwi_concat_list+=("$dwi_out")
-    bvec_concat+=$(cat "$bvec_out")$'\n'
-    bval_concat+=$(cat "$bval_out")$'\n'
+    bvec_files+=("$bvec_out")
+    bval_files+=("$bval_out")
 done
 
-# Final concatenation
 final_dwi="${out_dir}/${sub_id}_${ses_id}_dwi_allruns.nii.gz"
 final_bvec="${out_dir}/${sub_id}_${ses_id}_dwi_allruns.bvec"
 final_bval="${out_dir}/${sub_id}_${ses_id}_dwi_allruns.bval"
 
-num_runs=${#dwi_concat_list[@]}
-
-if [[ $num_runs -eq 1 ]]; then
-    echo "Only one run -> no concatenation needed."
-    cp   "${dwi_concat_list[0]}" "$final_dwi"
-    cp   "${bvec_out}"          "$final_bvec"   # variables still in scope
-    cp   "${bval_out}"          "$final_bval"
+if (( ${#dwi_concat_list[@]} == 1 )); then
+    cp "${dwi_concat_list[0]}" "$final_dwi"
+    cp "${bvec_files[0]}"      "$final_bvec"
+    cp "${bval_files[0]}"      "$final_bval"
 else
-    echo "Concatenating $num_runs runs with mrcat ..."
     mrcat "${dwi_concat_list[@]}" -axis 3 "$final_dwi"
-    # merge b-vec / b-val rows
-    echo "$bvec_concat" | paste -sd' ' - > "$final_bvec"
-    echo "$bval_concat" | paste -sd' ' - > "$final_bval"
+    paste -d' ' "${bvec_files[@]}" > "$final_bvec"
+    paste -d' ' "${bval_files[@]}" > "$final_bval"
 fi
 
 echo "Done: concatenated DWI written to $final_dwi"
