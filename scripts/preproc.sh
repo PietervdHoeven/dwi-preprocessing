@@ -154,7 +154,7 @@ awk 'NR==1 { for(i=1;i<=NF;i++) $i = -$i } 1' \
 
 # 5.3  Bias‐field correction (N4 via ANTs)
 echo "starting bias correct"
-[[ -f "$dwi_bias_mif" ]] || dwibiascorrect ants "$dwi_degibbs_mif" "$dwi_bias_mif" -bias "$dwi_biasfield_mif"
+[[ -f "$dwi_bias_mif" ]] || dwibiascorrect ants "$dwi_degibbs_mif" "$dwi_bias_mif" -scratch "${wrk_dir}/"
 echo "passed bias correct"
 
 # 5.4  Motion & eddy (legacy eddy_correct)

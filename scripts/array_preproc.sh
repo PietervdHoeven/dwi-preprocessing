@@ -8,7 +8,7 @@
 #SBATCH --output=logs/slurm_%A_%a.out
 #SBATCH --error=logs/slurm_%A_%a.err
 
-set -euo pipefail
+# set -euo pipefail
 
 # 1) YOUR HOST PATHS
 echo "Initialising path variables"
