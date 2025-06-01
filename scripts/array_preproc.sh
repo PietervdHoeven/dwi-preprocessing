@@ -62,4 +62,6 @@ cp -r "${TMPDIR}/preproc/${P_ID}/${S_ID}/." \
 echo "COMPLETED CLEANING FOR $P_ID $S_ID"
 
 # 6) CLEAN UP (optional)
-# rm -rf "${TMPDIR}"
+rm -rf "${TMPDIR}/preproc/${P_ID}/${S_ID}/"
+rm -rf "${TMPDIR}/work/${P_ID}/${S_ID}/"
+rm -rf "${TMPDIR}/oasis-data/${P_ID}/${S_ID}/"
