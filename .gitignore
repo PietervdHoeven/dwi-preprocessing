@@ -11,6 +11,7 @@
 # Outputs / checkpoints
 outputs/
 scratch/
+work/
 *.log
 *.tmp
 
