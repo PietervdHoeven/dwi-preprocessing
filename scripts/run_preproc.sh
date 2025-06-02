@@ -45,7 +45,7 @@ for dwi_file in "${dwi_files[@]}"; do
     fi
     echo "Processing run: $run_id"
 
-    bash /scripts/preproc.sh "$base_dir" "$sub_id" "$ses_id" "$run_id" "$selected_t1"
+    bash ~/dev/projects/dwi-preprocessing/scripts/preproc.sh "$base_dir" "$sub_id" "$ses_id" "$run_id" "$selected_t1"
     echo "$base_dir" "$sub_id" "$ses_id" "$run_id" "$selected_t1"
 
     # Store preprocessed output paths

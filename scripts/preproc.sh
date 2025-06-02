@@ -5,6 +5,10 @@
 ###############################################################################
 set -euo pipefail
 
+
+device="cpu"
+
+
 # ─── 1. CLI ARGUMENTS ─────────────────────────────────────────────────────────
 
 base_dir=$1            # e.g. ~/dwi-preprocessing/data
@@ -65,6 +69,11 @@ ras_bval="${wrk_dir}/${fp}dwi_ras.bval"
 dwi_den_mif="${wrk_dir}/${fp}dwi_den.mif"  
 dwi_noise_mif="${wrk_dir}/${fp}dwi_noise.mif"
 dwi_degibbs_mif="${wrk_dir}/${fp}dwi_degibbs.mif"
+
+# bias-mask helper files (for dwibiascorrect)
+b0_bias_nii="${wrk_dir}/${fp}b0_for_bias.nii.gz"
+mask_bias_nii="${wrk_dir}/${fp}mask_for_bias_bet.nii.gz"
+mask_bias_dil_nii="${wrk_dir}/${fp}mask_for_bias_dil.nii.gz"
 
 # bias corr
 dwi_bias_mif="${wrk_dir}/${fp}dwi_biascorr.mif"
@@ -152,10 +161,28 @@ awk 'NR==1 { for(i=1;i<=NF;i++) $i = -$i } 1' \
 [[ -f "$dwi_den_mif" ]]     || dwidenoise "$dwi_mif"     "$dwi_den_mif"   -noise "$dwi_noise_mif"
 [[ -f "$dwi_degibbs_mif" ]] || mrdegibbs  "$dwi_den_mif" "$dwi_degibbs_mif"
 
-# 5.3  Bias‐field correction (N4 via ANTs)
+# 5.3a  create a single-b0 image for masking
+[[ -f "$b0_bias_nii" ]] || dwiextract "$dwi_degibbs_mif" - -bzero | mrconvert - "$b0_bias_nii"
+
+# 5.3b  run HD-BET on that b0 to obtain a brain mask
+[[ -f "$mask_bias_nii" ]] || hd-bet -i "$b0_bias_nii" -o "$mask_bias_nii" --save_bet_mask --no_bet_image -device $device
+
+# 5.3c  dilate the mask by one voxel for safety
+[[ -f "$mask_bias_dil_nii" ]] || maskfilter "$mask_bias_nii" dilate -npass 1 "$mask_bias_dil_nii"
+
+# 5.3d  run N4 bias-field correction with the dilated mask
 echo "starting bias correct"
-[[ -f "$dwi_bias_mif" ]] || dwibiascorrect ants "$dwi_degibbs_mif" "$dwi_bias_mif" -scratch "${wrk_dir}/"
+[[ -f "$dwi_bias_mif" ]] || dwibiascorrect ants \
+        "$dwi_degibbs_mif" "$dwi_bias_mif" \
+        -mask "$mask_bias_dil_nii" \
+        -scratch "${wrk_dir}/"
 echo "passed bias correct"
+
+
+# # 5.3  Bias‐field correction (N4 via ANTs)
+# echo "starting bias correct"
+# [[ -f "$dwi_bias_mif" ]] || dwibiascorrect ants "$dwi_degibbs_mif" "$dwi_bias_mif" -scratch "${wrk_dir}/"
+# echo "passed bias correct"
 
 # 5.4  Motion & eddy (legacy eddy_correct)
 [[ -f "$dwi_bias_nii" ]]     || mrconvert     "$dwi_bias_mif" "$dwi_bias_nii"
@@ -190,7 +217,7 @@ echo "passed bias correct"
 [[ -f "${bet_in}/${fp_nr}T1w_brain.nii.gz" ]] || cp "$t1_iso_nii" "${bet_in}/${fp_nr}T1w_brain.nii.gz"
 
 # 7.4 run HD-BET on both DWI and T1w
-[[ -f "$b0_brain_nii" ]] || hd-bet -i "$bet_in" -o "$bet_out" --save_bet_mask -device cpu
+[[ -f "$b0_brain_nii" ]] || hd-bet -i "$bet_in" -o "$bet_out" --save_bet_mask -device $device
 
 # 7.3 Convert T1w template to .mif and back (enforece RAS+ orientation)
 [[ -f "$template_mif" ]]      || mrconvert "$template_nii" -strides 1,2,3 "$template_mif"
@@ -259,7 +286,7 @@ if [[ ! -f "${split_dir}/${fp}dwi_0_sdc.nii.gz" ]]; then
 fi
 
 # 8.3 hd-bet the b0 (we assume the first vol is always the b0)
-[[ -f "$b0_sdc_brain_nii" ]] || hd-bet -i "$b0_sdc_nii" -o "$b0_sdc_brain_nii" --save_bet_mask -device cpu
+[[ -f "$b0_sdc_brain_nii" ]] || hd-bet -i "$b0_sdc_nii" -o "$b0_sdc_brain_nii" --save_bet_mask -device $device
 
 # 8.4 Apply mask to each dwi volume
 if [[ ! -f "${split_dir}/${fp}dwi_brain_0.nii.gz" ]]; then
