@@ -6,7 +6,7 @@
 set -euo pipefail
 
 
-device="cpu"
+device="cuda"
 
 
 # ─── 1. CLI ARGUMENTS ─────────────────────────────────────────────────────────
@@ -72,7 +72,7 @@ dwi_degibbs_mif="${wrk_dir}/${fp}dwi_degibbs.mif"
 
 # bias-mask helper files (for dwibiascorrect)
 b0_bias_nii="${wrk_dir}/${fp}b0_for_bias.nii.gz"
-mask_bias_nii="${wrk_dir}/${fp}mask_for_bias_bet.nii.gz"
+mask_bias_nii="${wrk_dir}/${fp}mask_for_bias.nii.gz"
 mask_bias_dil_nii="${wrk_dir}/${fp}mask_for_bias_dil.nii.gz"
 
 # bias corr
@@ -168,6 +168,7 @@ awk 'NR==1 { for(i=1;i<=NF;i++) $i = -$i } 1' \
 [[ -f "$mask_bias_nii" ]] || hd-bet -i "$b0_bias_nii" -o "$mask_bias_nii" --save_bet_mask --no_bet_image -device $device
 
 # 5.3c  dilate the mask by one voxel for safety
+mask_bias_nii="${wrk_dir}/${fp}mask_for_bias_bet.nii.gz"
 [[ -f "$mask_bias_dil_nii" ]] || maskfilter "$mask_bias_nii" dilate -npass 1 "$mask_bias_dil_nii"
 
 # 5.3d  run N4 bias-field correction with the dilated mask
