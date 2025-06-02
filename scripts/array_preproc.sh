@@ -6,7 +6,7 @@
 #SBATCH --mem=120G
 #SBATCH --time=05:00:00
 #SBATCH --output=logs/slurm_%A_%a.out
-#SBATCH --error=logs/slurm_%A_%a.err
+#SBATCH --error=logs/slurm_%A_%a.out
 
 # --------------- 0) SAFEGUARD SCRATCH CLEANUP ---------------
 trap 'echo "[$(date)] Cleaning TMPDIR for $P_ID/$S_ID"
