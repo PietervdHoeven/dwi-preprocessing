@@ -23,7 +23,7 @@ work/
 __pycache__/
 *.pyc
 .env
-venv/
+.venv/
 
 # Specific data folders
 data/oasis-data/
