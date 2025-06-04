@@ -33,3 +33,4 @@ dwibiascorrect-tmp-*
 
 # apptainer container
 *.img
+*.zip
