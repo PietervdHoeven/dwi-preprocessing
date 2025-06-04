@@ -165,9 +165,7 @@ awk 'NR==1 { for(i=1;i<=NF;i++) $i = -$i } 1' \
 [[ -f "$b0_bias_nii" ]] || dwiextract "$dwi_degibbs_mif" - -bzero | mrconvert - "$b0_bias_nii"
 
 # 5.3b  run HD-BET on that b0 to obtain a brain mask
-[[ -f "$mask_bias_nii" ]] || hd-bet -i "$b0_bias_nii" \
-        -o "$mask_bias_nii" --save_bet_mask \
-        --no_bet_image --disable_tta -device $device
+[[ -f "$mask_bias_nii" ]] || hd-bet -i "$b0_bias_nii" -o "$mask_bias_nii" --save_bet_mask --no_bet_image -device $device
 
 # 5.3c  dilate the mask by one voxel for safety
 mask_bias_nii="${wrk_dir}/${fp}mask_for_bias_bet.nii.gz"
@@ -220,7 +218,7 @@ echo "passed bias correct"
 [[ -f "${bet_in}/${fp_nr}T1w_brain.nii.gz" ]] || cp "$t1_iso_nii" "${bet_in}/${fp_nr}T1w_brain.nii.gz"
 
 # 7.4 run HD-BET on both DWI and T1w
-[[ -f "$b0_brain_nii" ]] || hd-bet -i "$bet_in" -o "$bet_out" --save_bet_mask --disable_tta -device $device
+[[ -f "$b0_brain_nii" ]] || hd-bet -i "$bet_in" -o "$bet_out" --save_bet_mask -device $device
 
 # 7.3 Convert T1w template to .mif and back (enforece RAS+ orientation)
 [[ -f "$template_mif" ]]      || mrconvert "$template_nii" -strides 1,2,3 "$template_mif"
@@ -289,7 +287,7 @@ if [[ ! -f "${split_dir}/${fp}dwi_0_sdc.nii.gz" ]]; then
 fi
 
 # 8.3 hd-bet the b0 (we assume the first vol is always the b0)
-[[ -f "$b0_sdc_brain_nii" ]] || hd-bet -i "$b0_sdc_nii" -o "$b0_sdc_brain_nii" --save_bet_mask --disable_tta -device $device
+[[ -f "$b0_sdc_brain_nii" ]] || hd-bet -i "$b0_sdc_nii" -o "$b0_sdc_brain_nii" --save_bet_mask -device $device
 
 # 8.4 Apply mask to each dwi volume
 if [[ ! -f "${split_dir}/${fp}dwi_brain_0.nii.gz" ]]; then

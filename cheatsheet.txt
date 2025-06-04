@@ -1,0 +1,17 @@
+srun --jobid=12167903_501 --pty --exclusive -w gcn33 htop
+
+tail -f /home/pvdhoeven/dwi-preprocessing/logs/slurm_12167903_501.out
+
+sbatch -a 502-502 scripts/array_preproc.sh
+
+salloc --partition=gpu_a100 --gres=gpu:1 --cpus-per-task=72 --mem=60G  --time=00:30:00
+
+apptainer shell --nv --cleanenv \
+  -B ~/dwi-preprocessing/data:/data \
+  -B ~/dwi-preprocessing/scripts:/scripts \
+  ~/dwi-preprocessing/containers/neurotools.img
+
+./scripts/run_preproc.sh data sub-OAS30343 ses-d4900
+
+rsync -avP pvdhoeven@snellius.surf.nl:~/dwi-preprocessing/data/preproc.zip \ 
+  ~/Downloads/preproc.zip

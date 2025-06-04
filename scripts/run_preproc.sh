@@ -6,6 +6,11 @@
 
 set -euo pipefail
 
+# Tell everything downstream to use up to 18 CPU threads
+export MRTRIX_NTHREADS=72                         #mrtrix
+export ITK_GLOBAL_DEFAULT_NUMBER_OF_THREADS=72    #ants
+export OMP_NUM_THREADS=72                        #fsl
+export NUMEXPR_MAX_THREADS=72                #hd-bet
 
 base_dir=$1
 sub_id=$2

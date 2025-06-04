@@ -2,9 +2,9 @@
 #SBATCH --job-name=preproc_dwi
 #SBATCH --partition=gpu_a100
 #SBATCH --gres=gpu:1
-#SBATCH --cpus-per-task=18
-#SBATCH --mem=120G
-#SBATCH --time=05:00:00
+#SBATCH --cpus-per-task=72
+#SBATCH --mem=60G
+#SBATCH --time=01:20:00
 #SBATCH --output=logs/slurm_%A_%a.out
 #SBATCH --error=logs/slurm_%A_%a.out
 
